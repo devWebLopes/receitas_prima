@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Custos de Alimentos"
+description = "Sistema para pequenos produtores de pães, cucas, quiches e granola controlarem receitas, custos de ingredientes e quantidades necessárias para cada lote de produção."
+version = "1.0.0"
+id = "artifacts/custos-alimentos"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25430
+
+[services.development]
+run = "pnpm --filter @workspace/custos-alimentos run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/custos-alimentos", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/custos-alimentos/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25430"
+BASE_PATH = "/"

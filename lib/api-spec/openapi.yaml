@@ -3,13 +3,19 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: API para custos, receitas e planejamento de produção de alimentos.
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: ingredients
+    description: Cadastro e preços de insumos
+  - name: recipes
+    description: Receitas e custos
+  - name: production
+    description: Planejamento de produção e estimativa de insumos
 paths:
   /healthz:
     get:
@@ -24,6 +30,211 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /overview:
+    get:
+      operationId: getOverview
+      tags: [recipes]
+      summary: Resumo do negócio
+      responses:
+        "200":
+          description: Resumo atualizado de receitas, insumos e produtos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Overview"
+  /ingredients:
+    get:
+      operationId: listIngredients
+      tags: [ingredients]
+      summary: Lista insumos
+      responses:
+        "200":
+          description: Insumos cadastrados
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Ingredient"
+    post:
+      operationId: createIngredient
+      tags: [ingredients]
+      summary: Cadastra insumo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IngredientInput"
+      responses:
+        "201":
+          description: Insumo cadastrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ingredient"
+  /ingredients/{id}:
+    patch:
+      operationId: updateIngredient
+      tags: [ingredients]
+      summary: Atualiza insumo
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IngredientInput"
+      responses:
+        "200":
+          description: Insumo atualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ingredient"
+        "404":
+          description: Insumo não encontrado
+    delete:
+      operationId: deleteIngredient
+      tags: [ingredients]
+      summary: Exclui insumo sem vínculo com receitas
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Insumo excluído
+        "409":
+          description: Insumo está sendo usado em uma receita
+  /recipes:
+    get:
+      operationId: listRecipes
+      tags: [recipes]
+      summary: Lista receitas com custos calculados
+      responses:
+        "200":
+          description: Receitas cadastradas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Recipe"
+    post:
+      operationId: createRecipe
+      tags: [recipes]
+      summary: Cadastra receita e seus ingredientes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecipeInput"
+      responses:
+        "201":
+          description: Receita cadastrada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Recipe"
+  /recipes/{id}:
+    patch:
+      operationId: updateRecipe
+      tags: [recipes]
+      summary: Atualiza receita e seus ingredientes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecipeInput"
+      responses:
+        "200":
+          description: Receita atualizada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Recipe"
+        "404":
+          description: Receita não encontrada
+    delete:
+      operationId: deleteRecipe
+      tags: [recipes]
+      summary: Exclui receita
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Receita excluída
+        "409":
+          description: Receita está sendo usada em um planejamento
+  /production/estimate:
+    post:
+      operationId: estimateProduction
+      tags: [production]
+      summary: Calcula os insumos totais de um lote planejado
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductionEstimateInput"
+      responses:
+        "200":
+          description: Resumo consolidado da produção
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductionEstimate"
+  /production/plans:
+    get:
+      operationId: listProductionPlans
+      tags: [production]
+      summary: Lista planejamentos salvos
+      responses:
+        "200":
+          description: Planejamentos salvos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProductionPlan"
+    post:
+      operationId: createProductionPlan
+      tags: [production]
+      summary: Salva um planejamento de produção
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductionPlanInput"
+      responses:
+        "201":
+          description: Planejamento salvo com sua estimativa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductionPlan"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +244,148 @@ components:
           type: string
       required:
         - status
+    Overview:
+      type: object
+      properties:
+        recipeCount: { type: integer }
+        ingredientCount: { type: integer }
+        productCount: { type: integer }
+        averageUnitCost: { type: number }
+        recentPlans:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductionPlan"
+      required: [recipeCount, ingredientCount, productCount, averageUnitCost, recentPlans]
+    Ingredient:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        category: { type: string }
+        packQuantity: { type: number }
+        packUnit: { type: string, enum: [kg, g, l, ml, un] }
+        packPrice: { type: number }
+        baseUnit: { type: string, enum: [g, ml, un] }
+        baseUnitCost: { type: number }
+      required: [id, name, category, packQuantity, packUnit, packPrice, baseUnit, baseUnitCost]
+    IngredientInput:
+      type: object
+      properties:
+        name: { type: string, minLength: 1 }
+        category: { type: string, minLength: 1 }
+        packQuantity: { type: number, exclusiveMinimum: 0 }
+        packUnit: { type: string, enum: [kg, g, l, ml, un] }
+        packPrice: { type: number, minimum: 0 }
+      required: [name, category, packQuantity, packUnit, packPrice]
+    RecipeIngredient:
+      type: object
+      properties:
+        ingredientId: { type: integer }
+        name: { type: string }
+        quantity: { type: number }
+        unit: { type: string, enum: [g, ml, un] }
+        unitCost: { type: number }
+        totalCost: { type: number }
+      required: [ingredientId, name, quantity, unit, unitCost, totalCost]
+    RecipeIngredientInput:
+      type: object
+      properties:
+        ingredientId: { type: integer }
+        quantity: { type: number, exclusiveMinimum: 0 }
+      required: [ingredientId, quantity]
+    Recipe:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        category: { type: string, enum: [Pães, Cucas, Quiches, Granola, Outros] }
+        yieldQuantity: { type: number }
+        yieldUnit: { type: string }
+        ingredients:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecipeIngredient"
+        batchCost: { type: number }
+        unitCost: { type: number }
+        updatedAt: { type: string, format: date-time }
+      required: [id, name, category, yieldQuantity, yieldUnit, ingredients, batchCost, unitCost, updatedAt]
+    RecipeInput:
+      type: object
+      properties:
+        name: { type: string, minLength: 1 }
+        category: { type: string, enum: [Pães, Cucas, Quiches, Granola, Outros] }
+        yieldQuantity: { type: number, exclusiveMinimum: 0 }
+        yieldUnit: { type: string, minLength: 1 }
+        ingredients:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/RecipeIngredientInput"
+      required: [name, category, yieldQuantity, yieldUnit, ingredients]
+    ProductionLineInput:
+      type: object
+      properties:
+        recipeId: { type: integer }
+        quantity: { type: number, exclusiveMinimum: 0 }
+      required: [recipeId, quantity]
+    ProductionEstimateInput:
+      type: object
+      properties:
+        lines:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/ProductionLineInput"
+      required: [lines]
+    EstimatedIngredient:
+      type: object
+      properties:
+        ingredientId: { type: integer }
+        name: { type: string }
+        quantity: { type: number }
+        unit: { type: string, enum: [g, ml, un] }
+        totalCost: { type: number }
+      required: [ingredientId, name, quantity, unit, totalCost]
+    ProductionLine:
+      type: object
+      properties:
+        recipeId: { type: integer }
+        recipeName: { type: string }
+        quantity: { type: number }
+        yieldUnit: { type: string }
+        batchCost: { type: number }
+        totalCost: { type: number }
+      required: [recipeId, recipeName, quantity, yieldUnit, batchCost, totalCost]
+    ProductionEstimate:
+      type: object
+      properties:
+        lines:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductionLine"
+        ingredients:
+          type: array
+          items:
+            $ref: "#/components/schemas/EstimatedIngredient"
+        totalCost: { type: number }
+      required: [lines, ingredients, totalCost]
+    ProductionPlanInput:
+      type: object
+      properties:
+        name: { type: string, minLength: 1 }
+        lines:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/ProductionLineInput"
+      required: [name, lines]
+    ProductionPlan:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        createdAt: { type: string, format: date-time }
+        estimate:
+          $ref: "#/components/schemas/ProductionEstimate"
+      required: [id, name, createdAt, estimate]
 

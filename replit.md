@@ -1,6 +1,6 @@
-# [Project name]
+# Miolo — Custos de Alimentos
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Aplicação para cadastrar insumos e receitas, calcular custos por lote e produto e planejar quantidades para produção artesanal.
 
 ## Run & Operate
 
@@ -22,19 +22,29 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/custos-alimentos/` — aplicação React para painel, receitas, insumos e planejamento de produção
+- `lib/api-spec/openapi.yaml` — contrato OpenAPI e fonte para os clientes/hooks gerados
+- `artifacts/api-server/src/routes/food-business.ts` — rotas de receitas, insumos e estimativas de produção
+- `lib/db/src/schema/food-business.ts` — tabelas PostgreSQL do domínio alimentar
+- `artifacts/custos-alimentos/src/index.css` — tokens e estilos do produto
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Preços de pacotes são convertidos para custo por grama, mililitro ou unidade antes de calcular receitas.
+- O custo das receitas é derivado dos preços atuais dos insumos.
+- Planejamentos salvos guardam uma estimativa de custo como fotografia do momento, sem mudar quando os preços forem atualizados.
+- A estimativa de produção escala a receita pelo rendimento até a quantidade desejada e consolida insumos repetidos.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- Cadastro e edição de preços e embalagens de insumos.
+- Cadastro de receitas de pães, cucas, quiches, granola e outras categorias, com custo por lote e por unidade.
+- Planejamento de múltiplas receitas com cálculo de quantidades, custos e lista consolidada de insumos.
+- A receita e os preços iniciais são exemplos e devem ser substituídos pelos valores reais do produtor.
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+_Nenhuma preferência persistente informada._
 
 ## Gotchas
 
