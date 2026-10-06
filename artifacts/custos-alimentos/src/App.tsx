@@ -5,6 +5,7 @@ import { Link, Route, Router as WouterRouter, Switch, useLocation } from 'wouter
 import {
   ArrowDownRight, ArrowRight, BookOpen, Boxes, Check, CircleHelp,
   ClipboardList, CookingPot, Plus, RefreshCw, Search, Trash2, Wheat, X, Pencil,
+  Upload,
 } from 'lucide-react';
 import {
   getGetOverviewQueryKey, getListIngredientsQueryKey, getListProductionPlansQueryKey,
@@ -18,9 +19,11 @@ import type {
   ProductionPlanInput, Recipe, RecipeCategory, RecipeInput,
 } from '@workspace/api-client-react';
 import NotFound from '@/pages/not-found';
+import RecipeImportDialog from '@/components/RecipeImportDialog';
+import { recipeCategories } from '@/lib/recipe-import';
 
 const client = new QueryClient({ defaultOptions: { queries: { staleTime: 20_000, retry: 1 } } });
-const categories: RecipeCategory[] = ['Pães', 'Cucas', 'Quiches', 'Granola', 'Outros'];
+const categories: RecipeCategory[] = recipeCategories;
 const packUnits = ['kg', 'g', 'l', 'ml', 'un'] as const;
 const fmt = (value: number | undefined) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value ?? 0);
 const num = (value: string) => Number(value.includes(',') ? value.replace(/\./g, '').replace(',', '.') : value);
@@ -155,15 +158,16 @@ function RecipeDialog({ item, ingredients, close }: { item?: Recipe; ingredients
 
 function RecipesPage() {
   const q=useListRecipes();const ing=useListIngredients();const qc=useQueryClient();const del=useDeleteRecipe();
-  const [modal,setModal]=useState(false);const [editing,setEditing]=useState<Recipe>();const [search,setSearch]=useState('');const [category,setCategory]=useState('Todas');const [error,setError]=useState('');
+  const [modal,setModal]=useState(false);const [importOpen,setImportOpen]=useState(false);const [editing,setEditing]=useState<Recipe>();const [search,setSearch]=useState('');const [category,setCategory]=useState('Todas');const [error,setError]=useState('');
   const recipes=(q.data??[]).filter(r=>(category==='Todas'||r.category===category)&&r.name.toLowerCase().includes(search.toLowerCase()));
   const openNew=()=>{setEditing(undefined);setModal(true);};
   const remove=(r:Recipe)=>{if(window.confirm(`Excluir a receita "${r.name}"?`))del.mutate({id:r.id},{onSuccess:()=>{void qc.invalidateQueries({queryKey:getListRecipesQueryKey()});void qc.invalidateQueries({queryKey:getGetOverviewQueryKey()});},onError:()=>setError('Não foi possível excluir esta receita.')});};
-  return <div><PageHeader eyebrow="Seu repertório" title="Receitas" description="Custos calculados a partir dos insumos e do rendimento de cada lote." action={<button className="btn btn-primary" onClick={openNew} data-testid="button-add-recipe"><Plus size={16}/> Nova receita</button>}/>
+  return <div><PageHeader eyebrow="Seu repertório" title="Receitas" description="Custos calculados a partir dos insumos e do rendimento de cada lote." action={<div className="flex flex-wrap gap-2"><button className="btn btn-secondary" onClick={()=>setImportOpen(true)} data-testid="button-import-recipe"><Upload size={16}/> Importar TXT</button><button className="btn btn-primary" onClick={openNew} data-testid="button-add-recipe"><Plus size={16}/> Nova receita</button></div>}/>
     {error&&<ErrorText message={error}/>}
     <div className="panel"><div className="p-5 border-b border-border flex flex-wrap gap-4 justify-between items-center"><div><div className="eyebrow">Caderno de receitas</div><div className="text-sm text-muted-foreground mt-1">{q.data?.length??0} receitas</div></div><div className="flex flex-wrap gap-2"><div className="relative"><Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"/><input aria-label="Buscar receitas" className="h-10 w-full sm:w-52 rounded-lg border border-input bg-card pl-9 pr-3 text-sm outline-none focus:border-primary" placeholder="Buscar receita…" value={search} onChange={e=>setSearch(e.target.value)} data-testid="input-search-recipes"/></div><select className="h-10 rounded-lg border border-input bg-card px-3 text-sm" value={category} onChange={e=>setCategory(e.target.value)} data-testid="filter-recipe-category"><option>Todas</option>{categories.map(c=><option key={c}>{c}</option>)}</select></div></div>
       {q.isLoading||ing.isLoading?<div className="p-5"><LoadingPanel rows={4}/></div>:q.isError||ing.isError?<QueryError retry={()=>{void q.refetch();void ing.refetch();}}/>:recipes.length===0?<EmptyState title={search||category!=='Todas'?'Nenhuma receita encontrada':'Seu caderno está em branco'} text={search||category!=='Todas'?'Ajuste os filtros e tente novamente.':'Cadastre uma receita para conhecer seu custo real por unidade.'} action={!search&&category==='Todas'&&<button className="btn btn-primary" onClick={openNew}><Plus size={15}/> Criar primeira receita</button>}/>:<div className="table-wrap"><table className="data-table"><thead><tr><th>Receita</th><th>Categoria</th><th>Rendimento</th><th>Custo do lote</th><th>Custo por unidade</th><th>Atualizada</th><th></th></tr></thead><tbody>{recipes.map(r=><tr key={r.id} data-testid={`row-recipe-${r.id}`}><td className="font-bold">{r.name}</td><td><span className="pill">{r.category}</span></td><td className="mono">{r.yieldQuantity} {r.yieldUnit}</td><td className="mono">{fmt(r.batchCost)}</td><td className="mono font-bold">{fmt(r.unitCost)} <span className="text-muted-foreground font-normal">/ {r.yieldUnit.replace(/s$/,'')}</span></td><td className="text-muted-foreground">{dateFmt(r.updatedAt)}</td><td><div className="flex justify-end gap-1"><button className="icon-btn" aria-label={`Editar ${r.name}`} onClick={()=>{setEditing(r);setModal(true);}} data-testid={`button-edit-recipe-${r.id}`}><Pencil size={15}/></button><button className="icon-btn hover:!text-destructive" aria-label={`Excluir ${r.name}`} onClick={()=>remove(r)} disabled={del.isPending} data-testid={`button-delete-recipe-${r.id}`}><Trash2 size={15}/></button></div></td></tr>)}</tbody></table></div>}
     </div>{modal&&<RecipeDialog item={editing} ingredients={ing.data??[]} close={()=>setModal(false)}/>}
+    {importOpen&&<RecipeImportDialog ingredients={ing.data??[]} close={()=>setImportOpen(false)}/>}
   </div>;
 }
 
