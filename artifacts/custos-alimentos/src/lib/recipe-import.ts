@@ -1,6 +1,6 @@
 import type { Ingredient, RecipeCategory } from '@workspace/api-client-react';
 
-export const recipeCategories: RecipeCategory[] = ['Pães', 'Cucas', 'Quiches', 'Granola', 'Outros'];
+export const recipeCategories: RecipeCategory[] = ['Pães', 'Cucas', 'Quiches', 'Granola', 'Biscoitos', 'Massas', 'Outros'];
 
 export type ParsedRecipeIngredient = {
   sourceName: string;

@@ -5,7 +5,11 @@ import { defineConfig } from 'vite';
 
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
 
-const rawPort = process.env.PORT;
+// Outside Replit (local development, e.g. Windows) PORT/BASE_PATH get defaults
+// and /api is proxied to the local API server. On Replit they stay required.
+const isReplit = process.env.REPL_ID !== undefined;
+
+const rawPort = process.env.PORT ?? (isReplit ? undefined : '5173');
 
 if (!rawPort) {
   throw new Error(
@@ -19,13 +23,15 @@ if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
-const basePath = process.env.BASE_PATH;
+const basePath = process.env.BASE_PATH ?? (isReplit ? undefined : '/');
 
 if (!basePath) {
   throw new Error(
     'BASE_PATH environment variable is required but was not provided.',
   );
 }
+
+const localApiTarget = `http://localhost:${process.env.API_PORT ?? '5000'}`;
 
 export default defineConfig({
   base: basePath,
@@ -72,6 +78,13 @@ export default defineConfig({
     fs: {
       strict: true,
     },
+    ...(isReplit
+      ? {}
+      : {
+          proxy: {
+            '/api': { target: localApiTarget, changeOrigin: true },
+          },
+        }),
   },
   preview: {
     port,

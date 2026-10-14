@@ -298,7 +298,7 @@ components:
       properties:
         id: { type: integer }
         name: { type: string }
-        category: { type: string, enum: [Pães, Cucas, Quiches, Granola, Outros] }
+        category: { type: string, enum: [Pães, Cucas, Quiches, Granola, Biscoitos, Massas, Outros] }
         yieldQuantity: { type: number }
         yieldUnit: { type: string }
         ingredients:
@@ -313,7 +313,7 @@ components:
       type: object
       properties:
         name: { type: string, minLength: 1 }
-        category: { type: string, enum: [Pães, Cucas, Quiches, Granola, Outros] }
+        category: { type: string, enum: [Pães, Cucas, Quiches, Granola, Biscoitos, Massas, Outros] }
         yieldQuantity: { type: number, exclusiveMinimum: 0 }
         yieldUnit: { type: string, minLength: 1 }
         ingredients:

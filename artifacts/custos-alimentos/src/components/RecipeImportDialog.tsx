@@ -125,6 +125,11 @@ export default function RecipeImportDialog({ ingredients, close }: Props) {
       setError('Associe cada ingrediente a um insumo cadastrado e confira as quantidades.');
       return;
     }
+    const ingredientIds = draft.ingredients.map(row => row.ingredientId);
+    if (new Set(ingredientIds).size !== ingredientIds.length) {
+      setError('Um insumo não pode aparecer mais de uma vez na mesma receita. Consolide as quantidades ou escolha insumos distintos.');
+      return;
+    }
 
     const payload: RecipeInput = {
       name: draft.name.trim(),
@@ -143,7 +148,10 @@ export default function RecipeImportDialog({ ingredients, close }: Props) {
         void qc.invalidateQueries({ queryKey: getGetOverviewQueryKey() });
         close();
       },
-      onError: () => setError('Não foi possível cadastrar a receita. Confira os insumos e tente novamente.'),
+      onError: (err) => {
+        const message = err instanceof Error ? err.message : '';
+        setError(message.includes('mais de uma vez') ? 'Um insumo não pode aparecer mais de uma vez na mesma receita.' : 'Não foi possível cadastrar a receita. Confira os insumos e tente novamente.');
+      },
     });
   };
 
@@ -154,7 +162,8 @@ export default function RecipeImportDialog({ ingredients, close }: Props) {
     && draft.yieldQuantity > 0
     && !!draft.yieldUnit.trim()
     && draft.ingredients.length > 0
-    && draft.ingredients.every(row => !!row.ingredientId && row.quantity > 0);
+    && draft.ingredients.every(row => !!row.ingredientId && row.quantity > 0)
+    && new Set(draft.ingredients.map(row => row.ingredientId)).size === draft.ingredients.length;
 
   return <div className="modal-backdrop" onMouseDown={event => { if (event.target === event.currentTarget) close(); }}>
     <section className="modal" role="dialog" aria-modal="true" aria-labelledby="recipe-import-title">

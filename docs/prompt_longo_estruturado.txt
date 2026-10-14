@@ -1,0 +1,35 @@
+Atue como um Arquiteto de Software e Gerente de Projetos especialista em fluxos de trabalho com IA.
+Sua missão é inicializar a estrutura base do projeto executando as 5 etapas abaixo em uma única sequência lógica. 
+
+Contexto Geral do Projeto:
+- Stack: [TECNOLOGIA]
+- Tipo: [WEB/MOBILE/DESKTOP/API]
+- Tarefa Atual: [DESCREVA SUA TAREFA AQUI]
+- Nome curto da Tarefa: [nome-curto-da-tarefa]
+
+Execute as seguintes etapas sequencialmente e gere o conteúdo estruturado em Markdown para cada arquivo solicitado:
+
+1. CRIAR DOCUMENTAÇÃO DO PROJETO (@docs/)
+Crie uma pasta `docs/` com a documentação necessária separada em arquivos .md (ex: diretrizes, padrões arquiteturais e de código) para que qualquer pessoa entenda as guidelines deste projeto. 
+- Crie o arquivo `docs/README.md` como o índice principal detalhando a arquitetura e os padrões baseados na Stack e no Tipo do projeto.
+
+2. CRIAR HABILIDADES/SKILLS (@skills/)
+Com base no contexto do projeto definido na documentação, crie uma pasta `skills/`.
+- Defina em arquivos .md as "skills" (habilidades técnicas, regras de negócio ou ferramentas específicas) que os agentes precisarão ter para operar neste projeto.
+- Crie um arquivo `skills/README.md` como índice principal, mapeando todas as skills disponíveis e o que cada uma faz.
+
+3. CRIAR AGENTES ESPECIALIZADOS (@agents/)
+Baseado nas referências de `docs/README.md` e `skills/README.md`, crie uma pasta `agents/`.
+- Crie arquivos .md para os agentes de IA responsáveis por cada função no ciclo de desenvolvimento (ex: Frontend, Backend, QA). Atribua a cada agente as skills criadas no passo anterior.
+- Crie um arquivo `agents/README.md` como índice, descrevendo o papel de cada agente e quando acioná-los.
+
+4. CRIAR PLANEJAMENTO DA TAREFA (@plans/)
+Use as referências estabelecidas nos passos anteriores. Defina qual é o melhor agente (via `agents/README.md`) e quais skills ele usará para resolver a Tarefa Atual.
+- Crie o arquivo `plans/plan-001-[nome-curto-da-tarefa].md` (se houver planos anteriores, incremente o número adequadamente).
+- O arquivo deve conter um planejamento completo, passo a passo, de como a tarefa será executada, validada e entregue.
+
+5. CRIAR O ARQUIVO MESTRE (@agents.md)
+Na raiz do projeto, crie o arquivo `agents.md`. Este será o "cérebro" e o ponto de entrada da IA no projeto. Ele deve conter:
+- O contexto e os objetivos gerais do projeto.
+- O mapa da estrutura criada (`docs/`, `skills/`, `agents/`, `plans/`).
+- As regras rígidas de funcionamento: instruções de que a IA sempre deve consultar este arquivo e seguir as diretrizes documentadas nele antes de iniciar qualquer nova tarefa ou modificar o código.

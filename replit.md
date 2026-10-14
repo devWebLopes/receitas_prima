@@ -10,6 +10,7 @@ Aplicação para cadastrar insumos e receitas, calcular custos por lote e produt
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required env: `DATABASE_URL` — Postgres connection string
+- Local dev (Windows / fora do Replit): copie `.env.example` → `.env`; ver `docs/README.md` › Desenvolvimento local
 
 ## Stack
 
@@ -48,7 +49,9 @@ _Nenhuma preferência persistente informada._
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Scripts de `package.json` precisam ser multiplataforma (rodam em `cmd` no Windows): nada de `export`, `sh -c`, `rm`. Use Node (`scripts/*.mjs`, `node --env-file-if-exists`).
+- `pnpm-workspace.yaml` exclui binários nativos de plataformas não usadas; manter `linux-x64` e `win32-x64`.
+- `.env` da raiz só é lido localmente (API via `--env-file-if-exists`, drizzle via `process.loadEnvFile`); no Replit as variáveis vêm do ambiente.
 
 ## Pointers
 

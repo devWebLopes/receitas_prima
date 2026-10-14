@@ -57,6 +57,12 @@ function presentIngredient(ingredient: typeof ingredientsTable.$inferSelect) {
   };
 }
 
+function hasDuplicateIngredients(items: Array<{ ingredientId: number }>): boolean {
+  return new Set(items.map((item) => item.ingredientId)).size !== items.length;
+}
+
+const duplicateIngredientError = "Um insumo não pode aparecer mais de uma vez na mesma receita.";
+
 async function ingredientIdsExist(ids: number[]): Promise<boolean> {
   if (!ids.length) return false;
   const uniqueIds = [...new Set(ids)];
@@ -305,6 +311,10 @@ router.post("/recipes", async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
+  if (hasDuplicateIngredients(parsed.data.ingredients)) {
+    res.status(400).json({ error: duplicateIngredientError });
+    return;
+  }
   if (!await ingredientIdsExist(parsed.data.ingredients.map((item) => item.ingredientId))) {
     res.status(400).json({ error: "Revise os insumos selecionados na receita." });
     return;
@@ -330,6 +340,10 @@ router.patch("/recipes/:id", async (req, res): Promise<void> => {
   const body = UpdateRecipeBody.safeParse(req.body);
   if (!params.success || !body.success) {
     res.status(400).json({ error: params.error?.message ?? body.error?.message });
+    return;
+  }
+  if (hasDuplicateIngredients(body.data.ingredients)) {
+    res.status(400).json({ error: duplicateIngredientError });
     return;
   }
   if (!await ingredientIdsExist(body.data.ingredients.map((item) => item.ingredientId))) {

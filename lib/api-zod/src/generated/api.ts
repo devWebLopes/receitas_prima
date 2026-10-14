@@ -149,7 +149,7 @@ export const DeleteIngredientResponse = zod.void()
 export const ListRecipesResponseItem = zod.object({
   "id": zod.number().int(),
   "name": zod.string(),
-  "category": zod.enum(['Pães', 'Cucas', 'Quiches', 'Granola', 'Outros']),
+  "category": zod.enum(['Pães', 'Cucas', 'Quiches', 'Granola', 'Biscoitos', 'Massas', 'Outros']),
   "yieldQuantity": zod.number(),
   "yieldUnit": zod.string(),
   "ingredients": zod.array(zod.object({
@@ -181,7 +181,7 @@ export const createRecipeBodyIngredientsItemQuantityExclusiveMin = 0;
 
 export const CreateRecipeBody = zod.object({
   "name": zod.string().min(1),
-  "category": zod.enum(['Pães', 'Cucas', 'Quiches', 'Granola', 'Outros']),
+  "category": zod.enum(['Pães', 'Cucas', 'Quiches', 'Granola', 'Biscoitos', 'Massas', 'Outros']),
   "yieldQuantity": zod.number().gt(createRecipeBodyYieldQuantityExclusiveMin),
   "yieldUnit": zod.string().min(1),
   "ingredients": zod.array(zod.object({
@@ -193,7 +193,7 @@ export const CreateRecipeBody = zod.object({
 export const CreateRecipeResponse = zod.object({
   "id": zod.number().int(),
   "name": zod.string(),
-  "category": zod.enum(['Pães', 'Cucas', 'Quiches', 'Granola', 'Outros']),
+  "category": zod.enum(['Pães', 'Cucas', 'Quiches', 'Granola', 'Biscoitos', 'Massas', 'Outros']),
   "yieldQuantity": zod.number(),
   "yieldUnit": zod.string(),
   "ingredients": zod.array(zod.object({
@@ -228,7 +228,7 @@ export const updateRecipeBodyIngredientsItemQuantityExclusiveMin = 0;
 
 export const UpdateRecipeBody = zod.object({
   "name": zod.string().min(1),
-  "category": zod.enum(['Pães', 'Cucas', 'Quiches', 'Granola', 'Outros']),
+  "category": zod.enum(['Pães', 'Cucas', 'Quiches', 'Granola', 'Biscoitos', 'Massas', 'Outros']),
   "yieldQuantity": zod.number().gt(updateRecipeBodyYieldQuantityExclusiveMin),
   "yieldUnit": zod.string().min(1),
   "ingredients": zod.array(zod.object({
@@ -240,7 +240,7 @@ export const UpdateRecipeBody = zod.object({
 export const UpdateRecipeResponse = zod.object({
   "id": zod.number().int(),
   "name": zod.string(),
-  "category": zod.enum(['Pães', 'Cucas', 'Quiches', 'Granola', 'Outros']),
+  "category": zod.enum(['Pães', 'Cucas', 'Quiches', 'Granola', 'Biscoitos', 'Massas', 'Outros']),
   "yieldQuantity": zod.number(),
   "yieldUnit": zod.string(),
   "ingredients": zod.array(zod.object({

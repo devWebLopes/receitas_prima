@@ -14,5 +14,7 @@ export const RecipeCategory = {
   Cucas: 'Cucas',
   Quiches: 'Quiches',
   Granola: 'Granola',
+  Biscoitos: 'Biscoitos',
+  Massas: 'Massas',
   Outros: 'Outros',
 } as const;
